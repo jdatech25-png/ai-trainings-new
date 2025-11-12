@@ -1,0 +1,32 @@
+# Core LangChain and OpenAI (Day 2: Chains, Memory, Tools)
+langchain==1.0.5
+langchain-classic==1.0.0
+langchain-community==0.4.1
+langchain-openai==1.0.2
+langchain-core==1.0.4
+langchain-text-splitters==1.0.0
+openai==2.7.2
+
+# Additional for tools and agents (Day 2)
+requests==2.32.5
+duckduckgo-search==8.1.1
+
+# Vector Stores
+faiss-cpu==1.12.0
+pymilvus==2.6.3
+
+# PDF Processing
+PyPDF2==3.0.1
+pypdf==5.1.0
+reportlab==4.2.5
+
+# Web Interface
+streamlit==1.51.0
+
+# FastAPI Backend
+fastapi==0.121.1
+uvicorn==0.38.0
+httpx==0.28.1
+
+# Utilities
+python-dotenv==1.0.1
