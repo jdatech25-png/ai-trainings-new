@@ -39,5 +39,5 @@ python-dotenv
 
 # Visualization (for graph rendering)
 grandalf
-pygraphviz
+# pygraphviz  # Commented out - requires Graphviz C libraries on Windows
 matplotlib
