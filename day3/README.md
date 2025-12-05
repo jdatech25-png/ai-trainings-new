@@ -56,25 +56,30 @@ cp .env.example .env
 ```
 
 ### 2. Run Examples in Order
+
+All examples run in **interactive mode** by default - simply execute them and follow the prompts:
+
 ```bash
-# Example 1: Simple Two Agents
+# Example 1: Simple Two Agents (Researcher → Writer)
 python examples/example_1_simple_two_agents.py
 
-# Example 2: Three Agents Sequential
+# Example 2: Three Agents Sequential (Researcher → Writer → Reviewer)
 python examples/example_2_three_agents_sequential.py
 
-# Example 3: Supervisor Pattern
+# Example 3: Supervisor Pattern (Supervisor coordinates workers)
 python examples/example_3_supervisor_pattern.py
 
-# Example 4: Conditional Edges
+# Example 4: Conditional Edges (Quality gate with routing)
 python examples/example_4_conditional_edges.py
 
-# Example 5: Human-in-the-Loop
+# Example 5: Human-in-the-Loop (Checkpoint-based approval workflow)
 python examples/example_5_human_in_loop.py
 
-# Example 6: Swarm Pattern
+# Example 6: Swarm Pattern (Parallel analysts with convergence)
 python examples/example_6_swarm_pattern.py
 ```
+
+**Note**: All examples use interactive prompts for input. No command-line arguments required!
 
 ---
 
@@ -97,15 +102,16 @@ day3/
 │
 ├── examples/                          # Progressive training examples
 │   ├── __init__.py
-│   ├── example_1_simple_two_agents.py       # Two agents communicating
-│   ├── example_2_three_agents_sequential.py # Three agent pipeline
-│   ├── example_3_supervisor_pattern.py      # Supervisor coordination
-│   ├── example_4_conditional_edges.py       # Dynamic routing
-│   ├── example_5_human_in_loop.py          # Human approval workflow
-│   └── example_6_swarm_pattern.py          # Swarm collaboration
+│   ├── example_1_simple_two_agents.py       # Two agents (interactive)
+│   ├── example_2_three_agents_sequential.py # Three agent pipeline (interactive)
+│   ├── example_3_supervisor_pattern.py      # Supervisor coordination (interactive)
+│   ├── example_4_conditional_edges.py       # Dynamic routing (interactive)
+│   ├── example_5_human_in_loop.py          # Human approval workflow (checkpoint-based)
+│   ├── example_6_swarm_pattern.py          # Swarm collaboration (interactive)
+│   └── checkpoints/                        # Example-specific checkpoints
 │
-└── checkpoints/                       # Checkpoint storage (auto-created)
-    └── checkpoint.db                 # SQLite checkpoint database
+└── checkpoints/                       # Main checkpoint storage (auto-created)
+    └── human_loop.db                 # SQLite checkpoint database (example 5)
 ```
 
 ---
@@ -587,24 +593,30 @@ ReActAgent maintains LangGraph compatibility with structured outputs:
 python examples/example_1_simple_two_agents.py
 ```
 
+**Interactive Mode**: 
+- Prompts you to enter a research task
+- Type 'quit' to exit
+- Graph builds once, reuses for multiple tasks
+
 **What to observe**:
 - Two agents (researcher, writer) working in sequence
 - State flowing between agents
 - Structured JSON outputs from each agent
 - Simple linear workflow
+- Clean, minimal output focused on results
 
 **Concepts covered**:
 - Graph creation with `StateGraph`
 - Adding nodes with `add_node()`
 - Connecting nodes with `add_edge()`
 - Setting entry point and end point
-- Invoking the graph
+- Invoking the graph with interactive input
 
 **Try modifying**:
-- Change the task
-- Add a third agent
-- Modify agent prompts
-- Change output schemas
+- Change the task input
+- Modify agent roles in `core/agents.py`
+- Adjust output schemas
+- Add error handling
 
 ---
 
@@ -616,17 +628,24 @@ python examples/example_1_simple_two_agents.py
 python examples/example_2_three_agents_sequential.py
 ```
 
+**Interactive Mode**:
+- Enter a task when prompted
+- Graph executes: Researcher → Writer → Reviewer
+- Type 'quit' to exit
+
 **What to observe**:
 - Research → Write → Review pipeline
 - Each agent builds on previous outputs
 - Structured JSON from every agent
 - Complete workflow from research to final review
+- Graph compiled once, reused efficiently
 
 **Concepts covered**:
 - Multi-step sequential workflows
 - Agent specialization (researcher, writer, reviewer)
 - State accumulation across agents
 - Final output compilation
+- Efficient graph reuse pattern
 
 **Use cases**:
 - Content creation pipelines
@@ -643,17 +662,24 @@ python examples/example_2_three_agents_sequential.py
 python examples/example_3_supervisor_pattern.py
 ```
 
+**Interactive Mode**:
+- Enter a task for the supervisor
+- Supervisor dynamically routes to workers
+- Type 'quit' to exit
+
 **What to observe**:
 - Supervisor decides which agent runs next
 - Dynamic workflow based on current state
 - Agents report back to supervisor
 - Loop continues until supervisor says "FINISH"
+- Graph structure allows flexible routing
 
 **Concepts covered**:
 - Supervisor agent pattern
 - Conditional edges based on supervisor decisions
 - Worker agents with specific roles
 - Dynamic workflow adaptation
+- Centralized decision-making
 
 **Workflow**:
 1. Supervisor analyzes task
@@ -672,23 +698,31 @@ python examples/example_3_supervisor_pattern.py
 python examples/example_4_conditional_edges.py
 ```
 
+**Interactive Mode**:
+- Enter a content creation task
+- Reviewer provides quality gate
+- Optional verbose mode prompt for detailed output
+- Type 'quit' to exit
+
 **What to observe**:
-- Routing changes based on state
-- Multiple possible paths through graph
+- Routing changes based on review quality score
+- Multiple possible paths through graph (approve/reject)
 - Conditional logic in edge functions
-- Dynamic workflow branching
+- Retry loops with max revision limit
+- Quality gate pattern in action
 
 **Concepts covered**:
 - `add_conditional_edges()` method
 - Routing functions
 - Edge mapping dictionaries
 - State-based decisions
+- Max iteration controls
 
 **Patterns**:
 - Approval/rejection flows
 - Quality gates
 - Retry logic
-- Dynamic routing
+- Dynamic routing based on quality
 
 ---
 
@@ -700,53 +734,90 @@ python examples/example_4_conditional_edges.py
 python examples/example_5_human_in_loop.py
 ```
 
+**Interactive Mode** (Checkpoint-based):
+1. **First run**: Enter thread ID and task → Writer generates content → Pauses → State saved
+2. **Second run**: Same thread ID → Shows content → Approve/reject → Resumes workflow
+3. **Complete**: Either approved OR max revisions reached
+
 **What to observe**:
-- Workflow pauses for human input
-- Checkpoints save state
-- Resume from interruption
-- Human feedback integration
+- Workflow pauses after writer executes
+- Checkpoints save state to SQLite database
+- Can resume across program restarts
+- Human feedback integration (approval + optional feedback)
+- Thread-based session management
 
 **Concepts covered**:
-- Checkpoint configuration
-- Interrupt patterns
+- `SqliteSaver` checkpoint configuration
+- `interrupt_after` pattern for pausing
+- `update_state()` + `invoke(None, config)` for resuming
+- Thread-based state persistence
 - Human approval nodes
-- State resumption
-- Thread management
+- State resumption across sessions
 
 **Use cases**:
 - Content approval workflows
 - Sensitive decision-making
-- Quality control
+- Quality control gates
 - Compliance requirements
+
+**Key Pattern**:
+```python
+# Compile with interrupt
+graph.compile(checkpointer=checkpointer, interrupt_after=["writer"])
+
+# First invoke - runs until interrupt
+graph.invoke(initial_state, config)
+
+# Update state with human input
+graph.update_state(config, {"approved": True})
+
+# Resume from checkpoint
+graph.invoke(None, config)
+```
 
 ---
 
 ### Example 6: Swarm Pattern
 
-**Purpose**: Explore collaborative multi-agent intelligence
+**Purpose**: Explore collaborative multi-agent intelligence with parallel execution
 
 ```bash
 python examples/example_6_swarm_pattern.py
 ```
 
+**Interactive Mode**:
+- Enter an analysis task
+- Three specialist analysts execute **simultaneously**
+- Aggregator synthesizes all insights
+- Type 'quit' to exit
+
 **What to observe**:
-- Multiple agents working in parallel
-- Shared knowledge base
-- Inter-agent communication
-- Convergence toward consensus
+- **Parallel execution**: 3 analysts run at same time (not sequential)
+- Multiple entry points in graph
+- Shared state accumulation from parallel sources
+- Convergence pattern (many → one aggregation)
+- Final consensus from diverse perspectives
 
 **Concepts covered**:
-- Parallel agent execution
-- Shared state management
-- Knowledge aggregation
-- Consensus building
-- Emergent behavior
+- Setting multiple entry points for parallel execution
+- Parallel node execution (swarm behavior)
+- Convergence edges (many analysts → one aggregator)
+- Shared state management across parallel paths
+- Consensus building from multiple agents
+- `recursion_limit` for controlling parallel workflows
 
 **Applications**:
-- Market analysis
+- Market analysis (multiple analyst perspectives)
 - Collaborative research
-- Decision-making
-- Complex problem-solving
+- Multi-perspective decision-making
+- Complex problem-solving requiring diverse expertise
+
+**Graph Pattern**:
+```
+Entry → Analyst 1 ↘
+Entry → Analyst 2 → Aggregator → END
+Entry → Analyst 3 ↗
+```
 
 ---
 
