@@ -868,8 +868,3 @@ You now have a complete, production-ready RAG training project with:
 - ✅ **Troubleshooting** - Solutions to common issues
 
 **Start your training**: `python examples/example_1_openai_assistant.py`
-
----
-
-*Last Updated: November 8, 2024*  
-*Project Location*: `/Users/amolbhangale/Personal/Amol/JDA Tech/projects/Trainings/day1`

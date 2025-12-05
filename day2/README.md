@@ -573,8 +573,3 @@ You now have a complete Day 2 training setup with:
 - ✅ **Hands-on examples** - Progressive learning
 
 **Start your training**: `python examples/example_1_simple_chain.py`
-
----
-
-*Last Updated: November 11, 2024*  
-*Project Location*: `/Users/amolbhangale/Personal/Amol/JDA Tech/projects/Trainings/day2`

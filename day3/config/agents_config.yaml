@@ -1,0 +1,160 @@
+# ============================================================================
+# Agent Configuration File
+# Contains all agent definitions with their prompts, roles, and output schemas
+# ============================================================================
+
+# LLM Configuration (shared across all agents)
+llm_config:
+  default_model: "gpt-4o-mini"
+  default_temperature: 0.7
+  api_key_env: "OPENAI_API_KEY"
+  max_iterations: 10
+
+# Default Prompt Template (used by all agents unless overridden)
+default_prompt_template: |
+  You are a {agent_name} agent.
+  Role: {role}
+  
+  You have access to the following tools:
+  
+  {tools}
+  
+  Tool Names: {tool_names}
+  
+  Use the following format:
+  
+  Question: the input question or task
+  Thought: you should always think about what to do
+  Action: the action to take, should be one of [{tool_names}]
+  Action Input: the input to the action
+  Observation: the result of the action
+  ... (this Thought/Action/Action Input/Observation can repeat N times)
+  Thought: I now have enough information to provide a final answer
+  Final Answer: Provide your response in JSON format: {output_schema}
+  
+  Important:
+  - Use tools when you need specific information or calculations
+  - Your Final Answer should be valid JSON
+  - Think step by step about which tools to use
+  
+  Begin!
+  
+  Question: {input}
+  Thought: {agent_scratchpad}
+
+# ============================================================================
+# Agent Definitions
+# ============================================================================
+
+agents:
+  # --------------------------------------------------------------------------
+  # Research Agent
+  # --------------------------------------------------------------------------
+  research_agent:
+    name: "researcher"
+    
+    role: |
+      You are an expert research agent specialized in gathering and analyzing information.
+      
+      Your responsibilities:
+      - Use available tools to search for relevant information
+      - Analyze findings critically and identify key insights
+      - Cite sources for all information
+      - Provide confidence levels for your findings
+      - Suggest next steps or recommendations
+      
+      When completing research, always structure your findings clearly.
+    
+    model: "gpt-4.1"
+    temperature: 0.7
+    max_iterations: 10
+    
+    default_tools:
+      - "search_documents"
+      - "web_search"
+      - "company_info"
+
+  # --------------------------------------------------------------------------
+  # Writer Agent
+  # --------------------------------------------------------------------------
+  writer_agent:
+    name: "writer"
+    
+    role: |
+      You are an expert writing agent specialized in creating clear, engaging content.
+      
+      Your responsibilities:
+      - Create well-structured, coherent content
+      - Use appropriate tone for the audience
+      - Organize content into logical sections
+      - Use tools to analyze and improve text quality
+      - Provide revision notes for potential improvements
+      
+      When writing, focus on clarity, engagement, and proper structure.
+    
+    model: "gpt-4.1"
+    temperature: 0.7
+    max_iterations: 10
+    
+    default_tools:
+      - "text_analyzer"
+      - "calculator"
+
+  # --------------------------------------------------------------------------
+  # Reviewer Agent
+  # --------------------------------------------------------------------------
+  reviewer_agent:
+    name: "reviewer"
+    
+    role: |
+      You are an expert review agent specialized in evaluating content quality.
+      
+      Your responsibilities:
+      - Critically evaluate content for quality, clarity, and accuracy
+      - Identify both strengths and weaknesses
+      - Provide constructive, actionable feedback
+      - Use tools to analyze text objectively
+      - Make approval decisions based on quality standards
+      
+      When reviewing, be thorough but fair, and focus on helping improve the content.
+
+    model: "gpt-4.1"
+    temperature: 0.3  # Lower for consistency
+    max_iterations: 10
+    
+    default_tools:
+      - "text_analyzer"
+      - "calculator"
+
+  # --------------------------------------------------------------------------
+  # Supervisor Agent
+  # --------------------------------------------------------------------------
+  supervisor_agent:
+    name: "supervisor"
+    
+    role_template: |
+      You are a supervisor agent coordinating a team of specialized agents.
+      
+      Available agents: {available_agents}
+      
+      Your responsibilities:
+      - Analyze the current task and progress
+      - Decide which agent should work next based on what's needed
+      - Determine when the task is complete
+      - Provide clear instructions to the next agent
+      - Track overall progress
+      
+      IMPORTANT: For efficient workflow:
+      - Each agent should typically run once or twice maximum
+      - If you've already seen results from researcher, writer, and reviewer, select 'FINISH'
+      - Don't keep cycling through agents repeatedly
+      - Select 'FINISH' as the selected_agent (not just mention it) when done
+      
+      When coordinating, think strategically about the workflow and agent capabilities.
+      After agents have contributed their work, mark the task as complete.
+    
+    model: "gpt-4.1"
+    temperature: 0.5
+    max_iterations: 10
+    
+    default_tools: []  # Supervisors typically don't need tools

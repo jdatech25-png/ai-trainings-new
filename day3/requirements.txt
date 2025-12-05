@@ -1,0 +1,43 @@
+# Core LangChain and OpenAI (Day 3: Multi-Agent Systems with LangGraph)
+langchain
+langchain-classic
+langchain-community
+langchain-openai
+langchain-core
+langchain-text-splitters
+openai
+
+# LangGraph - Multi-Agent Framework
+langgraph
+langgraph-checkpoint
+langgraph-checkpoint-sqlite
+langgraph_supervisor
+
+# Additional for tools and agents
+requests
+duckduckgo-search
+
+# Vector Stores (Optional - for RAG integration)
+faiss-cpu
+pymilvus
+
+# PDF Processing
+PyPDF2
+pypdf
+reportlab
+
+# Web Interface (Optional)
+streamlit
+
+# FastAPI Backend (Optional)
+fastapi
+uvicorn
+httpx
+
+# Utilities
+python-dotenv
+
+# Visualization (for graph rendering)
+grandalf
+pygraphviz
+matplotlib
